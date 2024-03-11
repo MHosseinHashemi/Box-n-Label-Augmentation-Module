@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ### This Module is still under developement ...
-
- 
-
 
 import os
 import cv2
@@ -13,9 +6,6 @@ import math
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-
-
- 
 
 
 class Image_Custom_Augmentation:
@@ -308,7 +298,6 @@ class Image_Custom_Augmentation:
                 print("Error! No functionality has been called or perhaps your files are not in .jpg format")
             
 
-
 # ### Latest Version:
 # - Flip Augmentation ✅
 # - Rotate Augmentation ✅
@@ -317,8 +306,6 @@ class Image_Custom_Augmentation:
 # - Salt and Pepper ✅
 
  
-
-
 My_data = Image_Custom_Augmentation(SP_intensity=False,  # A float value indicating the intensity of SaltnPaper Effect (higher means more salt)
                                     RO_Key=False,        # An int value indicating the intensity (higher means more brighter and darker images)
                                     Br_intensity=False,  # An int value indicating the intensity (higher means more brighter and darker images)
@@ -328,8 +315,5 @@ My_data = Image_Custom_Augmentation(SP_intensity=False,  # A float value indicat
 
 
 
-
-
-# Good Luck
-# 
+# Good Luck 
 # MH
