@@ -36,6 +36,8 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 ## Usage Examples
 <img width="1250" alt="Capture" src="https://github.com/MHosseinHashemi/Box-n-Label-Augmentation-Module/assets/90381570/bde7df2a-8b4e-47fe-bd9c-e664d3959dfc">
 
+
+
 ## Notes
 
 - Input images must be in JPG format.
