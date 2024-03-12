@@ -41,6 +41,7 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 ## Notes
 
 - Input images must be in JPG format.
+- Currently supports images in 540*540.
 - The tool generates augmented labels for images with corresponding bounding box labels in YOLO format.
 - The module exclusively handles augmentation for non-target samples, i.e., images without labels (also known as background samples), and generates augmented images accordingly.
 - If the matching label for each image is not present in the folder, the module treats them as background samples.
