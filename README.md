@@ -42,7 +42,8 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 
 ## Notes
 
-- This module is currently under developement!
+- **This module is currently under developement!**
+- **The module initially designed to be a tool in data preprocessing for binary classification task, however we seek to enable it to work for multiclass cases**
 - Input images must be in JPG format.
 - Currently supports images in 540*540.
 - The tool generates augmented labels for images with corresponding bounding box labels in YOLO format.
