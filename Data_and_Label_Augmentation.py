@@ -1,4 +1,3 @@
-
 import os
 import cv2
 import shutil
@@ -10,7 +9,7 @@ import matplotlib.pyplot as plt
 
 class Image_Custom_Augmentation:
 
-    def __init__(self, SP_intensity = False, RO_Key = False, Br_intensity = False, H_Key = False, V_Key = False, HE_Key = False):
+    def __init__(self, SP_intensity = False, RO_Key = False, Br_intensity = False, H_Key = False, V_Key = False, HE_Key = False, Img_res = 540):
         # Salt and Pepper Intensity
         self.SP_intensity = SP_intensity 
         # Brightness Intensity
@@ -23,6 +22,8 @@ class Image_Custom_Augmentation:
         self.RO_Key = RO_Key 
         # Histogram Equalization Key
         self.HE_Key = HE_Key 
+        # Image Resolution
+        self.Img_res = Img_res
         
         
     def Salt_n_Pepper(self, image_path, output_dir):
@@ -140,35 +141,35 @@ class Image_Custom_Augmentation:
       
     
     @staticmethod    
-    def rotation_mapper(alpha, Xi, Yi):
+    def rotation_mapper(img_size, alpha, Xi, Yi):
         #"""Step 1"""
-        Xi = int(Xi * 540 - 270)
-        Yi = int(Yi * 540 - 270)
+        Xi = int(Xi * img_size - (img_size//2))
+        Yi = int(Yi * img_size - (img_size//2))
 
         #"Step 2"
         alpha = math.radians(alpha)
         Xj = int(Xi*math.cos(alpha) - Yi*math.sin(alpha))
         Yj = int(Xi*math.sin(alpha) + Yi*math.cos(alpha))
-        Xj += 270
-        Yj += 270
+        Xj += (img_size//2)
+        Yj += (img_size//2)
         return Xj, Yj
     
     
     @staticmethod
-    def h_flip_mapper(horizontal_key, Xi, Yi):
+    def h_flip_mapper(img_size, horizontal_key, Xi, Yi):
         if horizontal_key == True:
-            Xj = 540 - (540 * Xi)
-            Yj = 540 * Yi
+            Xj = (img_size) - ((img_size) * Xi)
+            Yj = (img_size) * Yi
         # else:
         #     print("Error!: 1) Nothing to flip .... or ... 2) Flags are not correct ...")
             
         return int(Xj), int(Yj)
 
     @staticmethod
-    def v_flip_mapper(vertical_key, Xi, Yi):
+    def v_flip_mapper(img_size, vertical_key, Xi, Yi):
         if vertical_key == True:
-            Xj = 540 * Xi
-            Yj = 540 - (540 * Yi)
+            Xj = img_size * Xi
+            Yj = img_size - (img_size * Yi)
             
         return int(Xj), int(Yj)
     
@@ -197,10 +198,10 @@ class Image_Custom_Augmentation:
                                     temp_list = [float(word) for word in line.split()]
                                     x,y = temp_list[1:3]
                                     # 2nd: Call the rotation mapper function to rotate the X,Y values
-                                    x,y = self.h_flip_mapper(self.H_Key, x, y)
+                                    x,y = self.h_flip_mapper(self.Img_res, self.H_Key, x, y)
                                     # 3rd: Revert them back to the original YOLO format by and divide them by 540
-                                    x /=540
-                                    y /=540
+                                    x /=self.Img_res
+                                    y /=self.Img_res
                                     temp_list[1:3] = x,y
                                     temp_list[0] = int(temp_list[0])
                                     # 4th: Save the new values to the Label File and put it inside a suitable dir
@@ -223,10 +224,10 @@ class Image_Custom_Augmentation:
                                     temp_list = [float(word) for word in line.split()]
                                     x,y = temp_list[1:3]
                                     # 2nd: Call the rotation mapper function to rotate the X,Y values
-                                    x,y = self.v_flip_mapper(self.V_Key, x, y)
+                                    x,y = self.v_flip_mapper(self.Img_res, self.V_Key, x, y)
                                     # 3rd: Revert them back to the original YOLO format by and divide them by 540
-                                    x /=540
-                                    y /=540
+                                    x /=self.Img_res
+                                    y /=self.Img_res
                                     temp_list[1:3] = x,y
                                     temp_list[0] = int(temp_list[0])
                                     # 4th: Save the new values to the Label File and put it inside a suitable dir
@@ -273,10 +274,10 @@ class Image_Custom_Augmentation:
                                     temp_list = [float(word) for word in line.split()]
                                     x,y = temp_list[1:3]
                                     # 2nd: Call the rotation mapper function to rotate the X,Y values
-                                    x,y = self.rotation_mapper(30,x,y)
+                                    x,y = self.rotation_mapper(self.Img_res,30,x,y)
                                     # 3rd: Revert them back to the original YOLO format by and divide them by 540
-                                    x /=540
-                                    y /=540
+                                    x /=self.Img_res
+                                    y /=self.Img_res
                                     temp_list[1:3] = x,y
                                     temp_list[0] = int(temp_list[0])
                                     # 4th: Save the new values to the Label File and put it inside a suitable dir
@@ -298,6 +299,7 @@ class Image_Custom_Augmentation:
                 print("Error! No functionality has been called or perhaps your files are not in .jpg format")
             
 
+
 # ### Latest Version:
 # - Flip Augmentation ✅
 # - Rotate Augmentation ✅
@@ -305,15 +307,18 @@ class Image_Custom_Augmentation:
 # - Brightness/ Dimness ✅
 # - Salt and Pepper ✅
 
- 
+
 My_data = Image_Custom_Augmentation(SP_intensity=False,  # A float value indicating the intensity of SaltnPaper Effect (higher means more salt)
                                     RO_Key=False,        # An int value indicating the intensity (higher means more brighter and darker images)
                                     Br_intensity=False,  # An int value indicating the intensity (higher means more brighter and darker images)
                                     H_Key = False,       # A bool value indicating either you want the Horizontally Flipped samples
                                     V_Key = False,       # A bool value indicating either you want the Vertically Flipped samples
-                                    HE_Key= False)       # A bool value indicating either you want the Histogram Equalized samples
+                                    HE_Key= False,       # A bool value indicating either you want the Histogram Equalized samples
+                                    Img_res=540)         # An integer value indicating the image resolution
+      
 
 
 
-# Good Luck 
+
+# Good Luck
 # MH
