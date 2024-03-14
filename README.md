@@ -18,7 +18,8 @@ my_data = Image_Custom_Augmentation(SP_intensity=False,  # Salt and Pepper Inten
                                     Br_intensity=False,  # Brightness Intensity
                                     H_Key=False,         # Horizontal Flip
                                     V_Key=False,         # Vertical Flip
-                                    HE_Key=False)        # Histogram Equalization
+                                    HE_Key=False,        # Histogram Equalization
+                                    Img_res= 540)        # Image Resolution
 
 #### Generate augmented data
 my_data.Generate_Data(input_path="input_directory_path", output_path="output_directory_path")
@@ -32,6 +33,7 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 - **H_Key**: A boolean value indicating whether to generate horizontally flipped samples.
 - **V_Key**: A boolean value indicating whether to generate vertically flipped samples.
 - **HE_Key**: A boolean value indicating whether to generate histogram equalized samples.
+- **Img_res**: An integer value indicating the image resolution. Default value is 540. (540*540)
 
 ## Usage Examples
 <img width="1250" alt="Capture" src="https://github.com/MHosseinHashemi/Box-n-Label-Augmentation-Module/assets/90381570/bde7df2a-8b4e-47fe-bd9c-e664d3959dfc">
@@ -40,6 +42,7 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 
 ## Notes
 
+- This module is currently under developement!
 - Input images must be in JPG format.
 - Currently supports images in 540*540.
 - The tool generates augmented labels for images with corresponding bounding box labels in YOLO format.
