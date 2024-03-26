@@ -45,7 +45,6 @@ my_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 - **This module is currently under developement!**
 - **The module initially designed to be a tool in data preprocessing for binary classification task, however we seek to enable it to work for multiclass cases**
 - Input images must be in JPG format.
-- Currently supports images in 540*540.
 - The tool generates augmented labels for images with corresponding bounding box labels in YOLO format.
 - The module exclusively handles augmentation for non-target samples, i.e., images without labels (also known as background samples), and generates augmented images accordingly.
 - If the matching label for each image is not present in the folder, the module treats them as background samples.
