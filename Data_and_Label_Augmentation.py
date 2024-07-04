@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 class Image_Custom_Augmentation:
 
-    def __init__(self, SP_intensity = False, RO_Key = False, Br_intensity = False, H_Key = False, V_Key = False, HE_Key = False, Img_res = 540):
+    def __init__(self, SP_intensity = False, CWRO_Key = False, CCWRO_Key = False, Br_intensity = False, H_Key = False, V_Key = False, HE_Key = False, Img_res = 540):
         # Salt and Pepper Intensity
         self.SP_intensity = SP_intensity 
         # Brightness Intensity
@@ -18,8 +18,10 @@ class Image_Custom_Augmentation:
         self.H_Key = H_Key 
         # Vertical Flip Key
         self.V_Key = V_Key 
-        # Rotate Key
-        self.RO_Key = RO_Key 
+        # CW Rotate Key
+        self.CWRO_Key = CWRO_Key 
+        # CCW Rotate Key
+        self.CCWRO_Key = CCWRO_Key
         # Histogram Equalization Key
         self.HE_Key = HE_Key 
         # Image Resolution
@@ -77,16 +79,21 @@ class Image_Custom_Augmentation:
         centerX, centerY = (width // 2, height // 2)
         
         "Get the rotation Matrix and apply it to the image"
-        M_1 = cv2.getRotationMatrix2D((centerX, centerY), -self.RO_Key, 1.0)
+        M_1 = cv2.getRotationMatrix2D((centerX, centerY), -self.CWRO_Key, 1.0) # Clock Wise Rotation Matrix
+        M_2 = cv2.getRotationMatrix2D((centerX, centerY), self.CCWRO_Key, 1.0) # C-Clock Wise Rotation Matrix
         cw_rotated_image = cv2.warpAffine(image, M_1, (width, height))
+        ccw_rotated_image = cv2.warpAffine(image, M_2, (width, height))
     
         # Save the modified image to the output path
-        custom_name_1 = f"{clean_label}"+"_RO_"+".jpg"
+        custom_name_1 = f"{clean_label}"+"_CWRO_"+".jpg"
+        custom_name_2 = f"{clean_label}"+"_CCWRO_"+".jpg"
         output_path_1 = os.path.join(output_dir, custom_name_1)
+        output_path_2 = os.path.join(output_dir, custom_name_2)
         cv2.imwrite(output_path_1, cw_rotated_image)
+        cv2.imwrite(output_path_2, ccw_rotated_image)
         
         # Reset
-        del cw_rotated_image, custom_name_1, output_path_1, image, clean_label
+        del cw_rotated_image,ccw_rotated_image, custom_name_1,custom_name_2, output_path_1,output_path_2, image, clean_label
     
     
     def Brightness(self, image_path, output_dir):
@@ -258,13 +265,12 @@ class Image_Custom_Augmentation:
                         shutil.copyfile(label_path, output_label_path)
 
                     
-                ##### Attention: Clock wise Rotation Considered as Positive !
-                if self.RO_Key:
+                if self.CWRO_Key:
                     self.Rotate(image_path, output_dir=output_path)
                     """Bounding Box Augmentation"""
                     clean_label = os.path.splitext(os.path.basename(label_path))[0]
                     if "T" in clean_label:  
-                        custom_name = f"{clean_label}"+"_RO_"+".txt"
+                        custom_name = f"{clean_label}"+"_CWRO_"+".txt"
                         output_label_path = os.path.join(output_path, custom_name)
                     
                         # 1st: Open the Original Label Text File and read All values from it
@@ -274,8 +280,34 @@ class Image_Custom_Augmentation:
                                     temp_list = [float(word) for word in line.split()]
                                     x,y = temp_list[1:3]
                                     # 2nd: Call the rotation mapper function to rotate the X,Y values
-                                    x,y = self.rotation_mapper(self.Img_res,30,x,y)
-                                    # 3rd: Revert them back to the original YOLO format by and divide them by 540
+                                    x,y = self.rotation_mapper(self.Img_res, self.CWRO_Key, x, y)
+                                    # 3rd: Revert them back to the original YOLO format by and divide them by Resolution
+                                    x /=self.Img_res
+                                    y /=self.Img_res
+                                    temp_list[1:3] = x,y
+                                    temp_list[0] = int(temp_list[0])
+                                    # 4th: Save the new values to the Label File and put it inside a suitable dir
+                                    output_file.write(' '.join(map(str, temp_list)) + '\n')
+                
+                if self.CCWRO_Key:
+                    self.Rotate(image_path, output_dir=output_path)
+                    """Bounding Box Augmentation"""
+                    clean_label = os.path.splitext(os.path.basename(label_path))[0]
+                    if "T" in clean_label:  
+                        custom_name = f"{clean_label}"+"_CCWRO_"+".txt"
+                        output_label_path = os.path.join(output_path, custom_name)
+                    
+                        # 1st: Open the Original Label Text File and read All values from it
+                        with open(label_path, "r") as input_file:
+                            with open(output_label_path, "w") as output_file:
+                                for line in input_file:
+                                    temp_list = [float(word) for word in line.split()]
+                                    x,y = temp_list[1:3]
+                                    # 2nd: Call the rotation mapper function to rotate the X,Y values
+                                    """Why 30?"""
+                                    # x,y = self.rotation_mapper(self.Img_res,30,x,y)
+                                    x,y = self.rotation_mapper(self.Img_res, -self.CCWRO_Key, x, y)
+                                    # 3rd: Revert them back to the original YOLO format by and divide them by Resolution
                                     x /=self.Img_res
                                     y /=self.Img_res
                                     temp_list[1:3] = x,y
@@ -300,25 +332,8 @@ class Image_Custom_Augmentation:
             
 
 
-# ### Latest Version:
-# - Flip Augmentation ✅
-# - Rotate Augmentation ✅
-# - Histogram Equalization ✅
-# - Brightness/ Dimness ✅
-# - Salt and Pepper ✅
 
 
-My_data = Image_Custom_Augmentation(SP_intensity=False,  # A float value indicating the intensity of SaltnPaper Effect (higher means more salt)
-                                    RO_Key=False,        # An int value indicating the intensity (higher means more brighter and darker images)
-                                    Br_intensity=False,  # An int value indicating the intensity (higher means more brighter and darker images)
-                                    H_Key = False,       # A bool value indicating either you want the Horizontally Flipped samples
-                                    V_Key = False,       # A bool value indicating either you want the Vertically Flipped samples
-                                    HE_Key= False,       # A bool value indicating either you want the Histogram Equalized samples
-                                    Img_res=540)         # An integer value indicating the image resolution
-      
-
-
-
-
+                
 # Good Luck
-# MH
+# @MH
