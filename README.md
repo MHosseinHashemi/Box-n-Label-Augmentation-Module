@@ -14,15 +14,18 @@ from Image_Custom_Augmentation import Image_Custom_Augmentation
 
 #### Initialize Image Custom Augmentation object
 My_data = Module.Image_Custom_Augmentation(
-                                            SP_intensity=0.2,         # Salt and Pepper Intensity
-                                            CWRO_Key=20,              # CW Rotation Degree
-                                            CCWRO_Key=20,             # CCW Rotation Degree
-                                            Br_intensity=True,        # Brightness Intensity
-                                            H_Key = True,             # Horizontal Flip
-                                            V_Key = True,             # Vertical Flip
-                                            HE_Key= True,             # Histogram Equalization
-                                            Img_res=540               # Image Resolution
-)              
+                                            SP_intensity=0.2,             # Salt and Pepper Intensity
+                                            CWRO_Key=20,                  # CW Rotation Degree
+                                            CCWRO_Key=20,                 # CCW Rotation Degree
+                                            Br_intensity=True,            # Brightness Intensity
+                                            H_Key = True,                 # Horizontal Flip
+                                            V_Key = True,                 # Vertical Flip
+                                            HE_Key= True,                 # Histogram Equalization
+                                            GaussianBlurr_KSize = 5,      # Gaussian Blurr (Kernel Size, Kernel Size)
+                                            Random_Translation = True,    # Random Translation (Shifting)
+                                            Img_res=540                   # Image Resolution
+)
+
 
 #### Generate augmented data
 My_data.Generate_Data(input_path="input_directory_path", output_path="output_directory_path")
