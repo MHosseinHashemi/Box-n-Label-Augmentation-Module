@@ -2,6 +2,7 @@ import os
 import cv2
 import shutil
 import math
+import random
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -18,11 +19,12 @@ class Image_Custom_Augmentation:
                     V_Key = False,
                     HE_Key = False,
                     GaussianBlurr_KSize = False,
+                    Random_Translation = False,
                     Img_res = 540):
         
-        # Salt and Pepper Intensity
+        # Salt and Pepper Intensity key
         self.SP_intensity = SP_intensity 
-        # Brightness Intensity
+        # Brightness Intensity key
         self.Br_intensity = Br_intensity 
         # Horizontal Flip Key
         self.H_Key = H_Key 
@@ -36,7 +38,9 @@ class Image_Custom_Augmentation:
         self.HE_Key = HE_Key 
         # Gaussian Blurring key
         self.GaussianBlurr_KSize = GaussianBlurr_KSize
-        # Image Resolution
+        # Random Translation key
+        self.Random_Translation = Random_Translation
+        # Image Resolution key
         self.Img_res = Img_res
         
         
@@ -173,8 +177,55 @@ class Image_Custom_Augmentation:
         # Reset
         del GBlurred, image, clean_label, custom_name_1, output_path_1
       
-      
-    
+
+    """Helper function"""
+    # generates random affine transformation matrix
+    def Transformation_Matrix_Generator(self, w, h):
+        t_value = int((h + w)/10) 
+        matrix = np.float32([
+            [1, 0, random.randint(-t_value, t_value)],
+            [0, 1, random.randint(-t_value, t_value)]
+        ])
+
+        return matrix
+
+
+
+    def Image_translation(self, image_path, output_dir):
+        image = cv2.imread(image_path)
+        clean_label = os.path.splitext(os.path.basename(image_path))[0]
+        height, width = image.shape[:2] 
+        # call the helper function
+        M = self.Transformation_Matrix_Generator(width, height)
+        # Apply Random Shifting  
+        Shifted = cv2.warpAffine(image, M, (width, height))
+        # Save the modified images to the output path
+        custom_name_1 = f"{clean_label}"+"_Shifted_"+".jpg"
+        output_path_1 = os.path.join(output_dir, custom_name_1)
+        cv2.imwrite(output_path_1, Shifted)
+
+        # Reset
+        del Shifted, image, clean_label, custom_name_1, output_path_1, height, width
+
+        return M
+
+
+
+    @staticmethod
+    def translation_mapper(x, y, matrix, width, height):
+        # Normalize
+        Xi = int(x * width)
+        Yi = int(y * height)
+        # translation coordinates
+        ho_shift = matrix[0][2]
+        ve_shift = matrix[1][2]
+        # shift the coordinates
+        Xj = Xi + ho_shift
+        Yj = Yi + ve_shift
+
+        return Xj, Yj
+
+
     @staticmethod    
     def rotation_mapper(img_size, alpha, Xi, Yi):
         #"""Step 1"""
@@ -199,6 +250,7 @@ class Image_Custom_Augmentation:
         #     print("Error!: 1) Nothing to flip .... or ... 2) Flags are not correct ...")
             
         return int(Xj), int(Yj)
+
 
     @staticmethod
     def v_flip_mapper(img_size, vertical_key, Xi, Yi):
@@ -226,7 +278,31 @@ class Image_Custom_Augmentation:
                         custom_name_1 = f"{clean_label}"+"_GBlurr_"+".txt"
                         output_path_1 = os.path.join(output_path, custom_name_1)
                         shutil.copyfile(label_path, output_path_1)
-                        
+
+
+                if self.Random_Translation:
+                    mat = self.Image_translation(image_path, output_dir=output_path)
+                    """Bounding Box Augmentation"""
+                    clean_label = os.path.splitext(os.path.basename(label_path))[0]
+                    if "T" in clean_label:
+                        custom_name = f"{clean_label}"+"_Shifted_"+".txt"
+                        output_label_path = os.path.join(output_path, custom_name)
+
+                        # 1st: Open the Original Label Text File and read All values from it
+                        with open(label_path, "r") as input_file:
+                            with open(output_label_path, "w") as output_file:
+                                for line in input_file:
+                                    temp_list = [float(word) for word in line.split()]
+                                    x,y = temp_list[1:3]
+                                    # 2nd: Call the translation mapper function to rotate the X,Y values
+                                    x,y = self.translation_mapper(x, y, matrix=mat, width=self.Img_res, height=self.Img_res)
+                                    # 3rd: Revert them back to the original YOLO format by and divide them by 540
+                                    x /=self.Img_res
+                                    y /=self.Img_res
+                                    temp_list[1:3] = x,y
+                                    temp_list[0] = int(temp_list[0])
+                                    # 4th: Save the new values to the Label File and put it inside a suitable dir
+                                    output_file.write(' '.join(map(str, temp_list)) + '\n')
 
 
                 if self.H_Key:
