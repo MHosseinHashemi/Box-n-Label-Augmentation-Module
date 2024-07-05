@@ -21,7 +21,7 @@ My_data = Module.Image_Custom_Augmentation(
                                             H_Key = True,                 # Horizontal Flip
                                             V_Key = True,                 # Vertical Flip
                                             HE_Key= True,                 # Histogram Equalization
-                                            GaussianBlurr_KSize = 5,      # Gaussian Blurr (Kernel Size, Kernel Size)
+                                            GaussianBlur_KSize = 5,       # Gaussian Blur (Kernel Size, Kernel Size)
                                             Random_Translation = True,    # Random Translation (Shifting)
                                             Img_res=540                   # Image Resolution
 )
