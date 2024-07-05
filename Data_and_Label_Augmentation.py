@@ -18,7 +18,7 @@ class Image_Custom_Augmentation:
                     H_Key = False,
                     V_Key = False,
                     HE_Key = False,
-                    GaussianBlurr_KSize = False,
+                    GaussianBlur_KSize = False,
                     Random_Translation = False,
                     Img_res = 540):
         
@@ -37,7 +37,7 @@ class Image_Custom_Augmentation:
         # Histogram Equalization Key
         self.HE_Key = HE_Key 
         # Gaussian Blurring key
-        self.GaussianBlurr_KSize = GaussianBlurr_KSize
+        self.GaussianBlur_KSize = GaussianBlur_KSize
         # Random Translation key
         self.Random_Translation = Random_Translation
         # Image Resolution key
@@ -164,11 +164,11 @@ class Image_Custom_Augmentation:
 
 
 
-    def GaussianBlurr(self ,image_path, output_dir):
+    def GaussianBlur(self ,image_path, output_dir):
         image = cv2.imread(image_path)
         clean_label = os.path.splitext(os.path.basename(image_path))[0]
         # Apply the Gaussian Blurring Filter  
-        GBlurred = cv2.GaussianBlur(image, (self.GaussianBlurr_KSize, self.GaussianBlurr_KSize), 0)
+        GBlurred = cv2.GaussianBlur(image, (self.GaussianBlur_KSize, self.GaussianBlur_KSize), 0)
         # Save the modified images to the output path
         custom_name_1 = f"{clean_label}"+"_GBlurr_"+".jpg"
         output_path_1 = os.path.join(output_dir, custom_name_1)
@@ -270,8 +270,8 @@ class Image_Custom_Augmentation:
                 label_path = os.path.join(input_path, index.rstrip(".jpg")+".txt")
 
                 # Switching between functions
-                if self.GaussianBlurr_KSize:
-                    self.GaussianBlurr(image_path, output_dir=output_path)
+                if self.GaussianBlur_KSize:
+                    self.GaussianBlur(image_path, output_dir=output_path)
                     """Bounding Box Augmentation"""
                     clean_label = os.path.splitext(os.path.basename(label_path))[0]
                     if "T" in clean_label:
