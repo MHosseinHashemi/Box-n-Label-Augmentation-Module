@@ -23,6 +23,7 @@ My_data = Module.Image_Custom_Augmentation(
                                             HE_Key= True,                 # Histogram Equalization
                                             GaussianBlur_KSize = 5,       # Gaussian Blur (Kernel Size, Kernel Size)
                                             Random_Translation = True,    # Random Translation (Shifting)
+                                            Scaling_Range = (0.75, 1.25), # Random Scaling Range (Upscaling and Downscaling)
                                             Img_res=540                   # Image Resolution
 )
 
