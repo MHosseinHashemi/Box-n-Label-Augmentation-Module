@@ -20,6 +20,7 @@ class Image_Custom_Augmentation:
                     HE_Key = False,
                     GaussianBlur_KSize = False,
                     Random_Translation = False,
+                    Scaling_Range = False,
                     Img_res = 540):
         
         # Salt and Pepper Intensity key
@@ -40,6 +41,11 @@ class Image_Custom_Augmentation:
         self.GaussianBlur_KSize = GaussianBlur_KSize
         # Random Translation key
         self.Random_Translation = Random_Translation
+        # Scaling Range
+        if isinstance(Scaling_Range, tuple) or Scaling_Range is False:
+            self.Scaling_Range = Scaling_Range
+        else:
+            raise ValueError("Scaling_Range must be a tuple or False")
         # Image Resolution key
         self.Img_res = Img_res
         
@@ -178,13 +184,27 @@ class Image_Custom_Augmentation:
         del GBlurred, image, clean_label, custom_name_1, output_path_1
       
 
-    """Helper function"""
-    # generates random affine transformation matrix
-    def Transformation_Matrix_Generator(self, w, h):
+    """Helper function 1"""
+    # generates random transformation matrix for translation
+    def Translation_Matrix_Generator(self, w, h):
         t_value = int((h + w)/10) 
         matrix = np.float32([
             [1, 0, random.randint(-t_value, t_value)],
             [0, 1, random.randint(-t_value, t_value)]
+        ])
+
+        return matrix
+    
+
+    """Helper function 2"""
+    # generates random transformation matrix for scaling
+    def Scaling_Matrix_Generator(self, lb, hb, w, h):
+        Sx = random.uniform(lb,hb) # x-axis scaling factor 
+        Sy = random.uniform(lb,hb) # y-axis scaling factor 
+        matrix = np.float32([
+            [Sx, 0, 0],
+            [0, Sy, 0],
+            [0, 0, 1]
         ])
 
         return matrix
@@ -195,8 +215,8 @@ class Image_Custom_Augmentation:
         image = cv2.imread(image_path)
         clean_label = os.path.splitext(os.path.basename(image_path))[0]
         height, width = image.shape[:2] 
-        # call the helper function
-        M = self.Transformation_Matrix_Generator(width, height)
+        # call the helper function 1
+        M = self.Translation_Matrix_Generator(width, height)
         # Apply Random Shifting  
         Shifted = cv2.warpAffine(image, M, (width, height))
         # Save the modified images to the output path
@@ -210,16 +230,56 @@ class Image_Custom_Augmentation:
         return M
 
 
+    def Image_resizing(self, image_path, output_dir):
+        image = cv2.imread(image_path)
+        clean_label = os.path.splitext(os.path.basename(image_path))[0]
+        height, width = image.shape[:2] 
+        # call the helper function 2
+        M = self.Scaling_Matrix_Generator(self.Scaling_Range[0], self.Scaling_Range[1], width, height)
+        # Apply Random Scaling  
+        # Scaled = cv2.warpPerspective(image, M, (width*2,height*2))
+        Scaled = cv2.warpPerspective(image, M, (width,height))
+        # For BB augmentation
+        Scaled_h, Scaled_w = Scaled.shape[:2]
+        print(f"Image: {image_path}\nScaling Factor: {M[0][0], M[1][1]}")
+        print(f"Original Dimension: Width:{width}  Height:{height}")
+        print(f"Scaled Dimension: Width:{Scaled_w}  Height:{Scaled_h}")
+        print("="*100)
+        # Save the modified images to the output path
+        custom_name_1 = f"{clean_label}"+"_Scaled_"+".jpg"
+        output_path_1 = os.path.join(output_dir, custom_name_1)
+        cv2.imwrite(output_path_1, Scaled)
+
+        # Reset
+        del Scaled, image, clean_label, custom_name_1, output_path_1, height, width
+
+        return M, Scaled_h, Scaled_w
+
+
+    @staticmethod
+    def scaling_mapper(x, y, matrix, Scaled_h, Scaled_w):
+        # Normalize
+        # Xi = int(x * width)
+        # Yi = int(y * height)
+        # Scaling coordinates
+        x_axis = matrix[0][0]
+        y_axis = matrix[1][1]
+        # Get the H, W for Scaled Image
+        Xj = int(x * Scaled_w)
+        Yj = int(y * Scaled_h)
+
+        return Xj, Yj
+
 
     @staticmethod
     def translation_mapper(x, y, matrix, width, height):
         # Normalize
         Xi = int(x * width)
         Yi = int(y * height)
-        # translation coordinates
+        # Translation coordinates
         ho_shift = matrix[0][2]
         ve_shift = matrix[1][2]
-        # shift the coordinates
+        # Shift the coordinates
         Xj = Xi + ho_shift
         Yj = Yi + ve_shift
 
@@ -269,7 +329,37 @@ class Image_Custom_Augmentation:
                 "New path defined for label file"
                 label_path = os.path.join(input_path, index.rstrip(".jpg")+".txt")
 
+                
+############################################## Work in Progress ###############################################
+
+
                 # Switching between functions
+                if self.Scaling_Range:
+                    mat, S_h, S_w = self.Image_resizing(image_path, output_dir=output_path)
+                    """Bounding Box Augmentaion"""
+                    clean_label = os.path.splitext(os.path.basename(label_path))[0]
+                    if "T" in clean_label:
+                        custom_name = f"{clean_label}"+"_Scaled_"+".txt"
+                        output_label_path = os.path.join(output_path, custom_name)
+                        # 1st: Open the Original Label Text File and read All values from it
+                        with open(label_path, "r") as input_file:
+                            with open(output_label_path, "w") as output_file:
+                                for line in input_file:
+                                    temp_list = [float(word) for word in line.split()]
+                                    x,y = temp_list[1:3]
+                                    # 2nd: Call the scaling mapper function to rotate the X,Y values
+                                    x,y = self.scaling_mapper(x, y, mat, S_h, S_w)
+                                    # 3rd: Revert them back to the original YOLO format by and divide them by 540
+                                    x /= self.Img_res
+                                    y /= self.Img_res
+                                    temp_list[1:3] = x,y
+                                    temp_list[0] = int(temp_list[0])
+                                    # 4th: Save the new values to the Label File and put it inside a suitable dir
+                                    output_file.write(' '.join(map(str, temp_list)) + '\n')
+
+                
+##############################################################################################################
+
                 if self.GaussianBlur_KSize:
                     self.GaussianBlur(image_path, output_dir=output_path)
                     """Bounding Box Augmentation"""
