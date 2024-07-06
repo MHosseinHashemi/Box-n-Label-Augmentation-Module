@@ -237,7 +237,6 @@ class Image_Custom_Augmentation:
         # call the helper function 2
         M = self.Scaling_Matrix_Generator(self.Scaling_Range[0], self.Scaling_Range[1], width, height)
         # Apply Random Scaling  
-        # Scaled = cv2.warpPerspective(image, M, (width*2,height*2))
         Scaled = cv2.warpPerspective(image, M, (width,height))
         # For BB augmentation
         Scaled_h, Scaled_w = Scaled.shape[:2]
@@ -258,15 +257,12 @@ class Image_Custom_Augmentation:
 
     @staticmethod
     def scaling_mapper(x, y, matrix, Scaled_h, Scaled_w):
-        # Normalize
-        # Xi = int(x * width)
-        # Yi = int(y * height)
         # Scaling coordinates
         x_axis = matrix[0][0]
         y_axis = matrix[1][1]
         # Get the H, W for Scaled Image
-        Xj = int(x * Scaled_w)
-        Yj = int(y * Scaled_h)
+        Xj = int(x * Scaled_w) * x_axis
+        Yj = int(y * Scaled_h) * y_axis
 
         return Xj, Yj
 
@@ -329,10 +325,6 @@ class Image_Custom_Augmentation:
                 "New path defined for label file"
                 label_path = os.path.join(input_path, index.rstrip(".jpg")+".txt")
 
-                
-############################################## Work in Progress ###############################################
-
-
                 # Switching between functions
                 if self.Scaling_Range:
                     mat, S_h, S_w = self.Image_resizing(image_path, output_dir=output_path)
@@ -358,7 +350,6 @@ class Image_Custom_Augmentation:
                                     output_file.write(' '.join(map(str, temp_list)) + '\n')
 
                 
-##############################################################################################################
 
                 if self.GaussianBlur_KSize:
                     self.GaussianBlur(image_path, output_dir=output_path)
