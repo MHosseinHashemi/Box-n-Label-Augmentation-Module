@@ -240,10 +240,10 @@ class Image_Custom_Augmentation:
         Scaled = cv2.warpPerspective(image, M, (width,height))
         # For BB augmentation
         Scaled_h, Scaled_w = Scaled.shape[:2]
-        print(f"Image: {image_path}\nScaling Factor: {M[0][0], M[1][1]}")
-        print(f"Original Dimension: Width:{width}  Height:{height}")
-        print(f"Scaled Dimension: Width:{Scaled_w}  Height:{Scaled_h}")
-        print("="*100)
+        # print(f"Image: {image_path}\nScaling Factor: {M[0][0], M[1][1]}")
+        # print(f"Original Dimension: Width:{width}  Height:{height}")
+        # print(f"Scaled Dimension: Width:{Scaled_w}  Height:{Scaled_h}")
+        # print("="*100)
         # Save the modified images to the output path
         custom_name_1 = f"{clean_label}"+"_Scaled_"+".jpg"
         output_path_1 = os.path.join(output_dir, custom_name_1)
