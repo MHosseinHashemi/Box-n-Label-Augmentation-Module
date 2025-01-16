@@ -5,7 +5,7 @@ This Python package provides a customizable image augmentation toolset primarily
 ## Usage
 
 ```python
-from Image_Custom_Augmentation import Image_Custom_Augmentation
+import BoXnLabeLs as Module
 
 #### Initialize Image Custom Augmentation object
 My_data = Module.Image_Custom_Augmentation(
