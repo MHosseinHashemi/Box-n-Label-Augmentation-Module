@@ -1,4 +1,4 @@
-# Box n Label Augmentation Module
+# BoXnLabeLs Module
 This Python package provides a customizable image augmentation toolset primarily aimed at generating augmented images and their corresponding labels for training deep learning models. It offers various augmentation techniques such as Salt and Pepper Noise, Brightness adjustment, Horizontal and Vertical Flipping, Histogram Equalization, and Rotation.
 
 
