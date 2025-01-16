@@ -1,11 +1,6 @@
 # Box n Label Augmentation Module
 This Python package provides a customizable image augmentation toolset primarily aimed at generating augmented images and their corresponding labels for training deep learning models. It offers various augmentation techniques such as Salt and Pepper Noise, Brightness adjustment, Horizontal and Vertical Flipping, Histogram Equalization, and Rotation.
 
-## Installation
-Clone this repository to your local directory:
-```bash
-git clone https://github.com/MHosseinHashemi/Box-n-Label-Augmentation-Module.git
-```
 
 ## Usage
 
@@ -45,10 +40,3 @@ My_data.Generate_Data(input_path="input_directory_path", output_path="output_dir
 - The module exclusively handles augmentation for non-target samples, i.e., images without labels (also known as background samples), and generates augmented images accordingly.
 - If the matching label file for each image sample is not present in the folder, the module treats them as background samples.
 
-  
-## Dependencies
-
-- OpenCV (`cv2`)
-- NumPy (`numpy`)
-- tqdm (`tqdm`)
-- Matplotlib (`matplotlib`)
