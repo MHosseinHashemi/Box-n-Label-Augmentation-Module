@@ -42,6 +42,9 @@ augmentor.Generate_Data(input_path="input_directory", output_path="output_direct
 - **Blurring:** Gaussian Blur
 - **Bounding Box Handling:** Automatic YOLO format adjustment
 
+More to come ...
+
+<br>
 
 <img width="1010" alt="Vis" src="https://github.com/user-attachments/assets/f21f386b-0782-473c-b5ad-edb6c6555ccc" />
 
