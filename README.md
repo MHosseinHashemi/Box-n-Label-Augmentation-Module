@@ -38,9 +38,9 @@ augmentor.Generate_Data(input_path="input_directory", output_path="output_direct
 
 - **Noise Addition:** Salt & Pepper Noise
 - **Image Enhancements:** Histogram Equalization, Brightness Adjustment
-- **Transformations:** Rotation, Flipping, Translation, Scaling
+- **Transformations:** CW and CCW Random Rotations, H and V Flippings, Random Translation, Random Scaling
 - **Blurring:** Gaussian Blur
-- **Bounding Box Handling:** Automatic YOLO format adjustment
+- **Bounding Box Handling:** Automatic YOLO-format Bounding Box Augmentation
 
 More to come ...
 
@@ -52,10 +52,14 @@ More to come ...
 ## Notes
 
 - The module is under active development.
-- Accepts images in **JPG format** only.
+- Accepts images in **JPG format** only. (For now)
 - Handles both labeled images (with bounding boxes) and unlabeled background images.
+- Expect updates over a 4-month period, with regular improvements and enhancements.
 
 
+
+# PyPl Page:
+https://pypi.org/project/BoXnLabelS
 
 
 
